@@ -6,26 +6,23 @@ CXXFLAGS += -I/usr/include/SuperCollider/plugin_interface \
 	`/usr/bin/x86_64-linux-gnu-python3.5-config --cflags` \
         -shared -fPIC \
 	-Wall -Wextra -std=c++11 \
+        -lpython3.5 \
 	-D ABS_SOURCE_PATH=\"`pwd`\" \
 	`/usr/bin/x86_64-linux-gnu-python3.5-config --ldflags` \
 	-g
 LDFLAGS += `/usr/bin/x86_64-linux-gnu-python3.5-config --ldflags`
 OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-all : scpy.os
+all : scpy.so
 
-scpy.os : $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -shared -o scpy.os
+scpy.so : $(OBJ_FILES)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -shared -o scpy.so
 
 %.o : %.cpp *.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-install : scpy.so scpy.sc loadit/scpy.so
-	cp -f scpy.sc scpy.os loadit/scpy.so $(SC_EXT_DIR)
-
-loadit/scpy.so: loadit/loadit.cpp
-	cd loadit
-	make
+install : scpy.so scpy.sc
+	cp -f scpy.sc scpy.so $(SC_EXT_DIR)
 
 clean :
-	rm -rf *.so *.o *.os loadit/*.{so,o,os}
+	rm -rf *.so *.o
